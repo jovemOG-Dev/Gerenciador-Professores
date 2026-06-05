@@ -1,0 +1,527 @@
+/* ================================================
+   Gerenciador de Professores — Estilo Principal
+   Gabriel Silva Gomes & Gabriel Rodrigues Fausto
+   TADS 3A Noturno | 2026
+   ================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ── Tokens ── */
+:root {
+  --bg:          #F5F3EE;
+  --surface:     #FFFFFF;
+  --border:      #D8D3C8;
+  --border-soft: #EAE6DF;
+
+  --ink:         #1A1714;
+  --ink-2:       #4A4540;
+  --ink-3:       #8C857C;
+
+  --accent:      #C8401A;        /* Senac red-orange */
+  --accent-dark: #A03010;
+  --accent-bg:   #FDF1ED;
+
+  --success:     #2A6E4A;
+  --success-bg:  #EDF7F2;
+  --danger:      #B82020;
+  --danger-bg:   #FDEDED;
+  --warn:        #9A6800;
+  --warn-bg:     #FEF8E7;
+
+  --radius:      10px;
+  --radius-lg:   16px;
+  --shadow:      0 2px 12px rgba(26,23,20,.07), 0 1px 3px rgba(26,23,20,.05);
+  --shadow-lg:   0 8px 32px rgba(26,23,20,.10), 0 2px 8px rgba(26,23,20,.06);
+
+  --font-head:   'DM Serif Display', Georgia, serif;
+  --font-body:   'DM Sans', 'Segoe UI', sans-serif;
+
+  --transition:  .18s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── Reset / Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.6;
+}
+
+/* ── Layout ── */
+.page-wrapper {
+  flex: 1;
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 20px 56px;
+}
+
+.page-wrapper--narrow {
+  max-width: 560px;
+}
+
+/* ── Header / Brand bar ── */
+.site-header {
+  background: var(--ink);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 58px;
+}
+
+.site-header__logo {
+  font-family: var(--font-head);
+  font-size: 1.15rem;
+  color: #fff;
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+
+.site-header__logo span {
+  color: var(--accent);
+}
+
+/* ── Page title ── */
+.page-title {
+  font-family: var(--font-head);
+  font-size: 2rem;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.2;
+  margin-bottom: 28px;
+  letter-spacing: -.01em;
+}
+
+.page-title small {
+  display: block;
+  font-family: var(--font-body);
+  font-size: .875rem;
+  font-weight: 500;
+  color: var(--ink-3);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+/* ── Card ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 28px 32px;
+  margin-bottom: 16px;
+  transition: box-shadow var(--transition);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── Professor card ── */
+.professor-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  margin-bottom: 12px;
+  transition: box-shadow var(--transition), transform var(--transition);
+  animation: fadeSlideIn .3s ease both;
+}
+
+.professor-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.professor-card--inactive {
+  border-left: 4px solid var(--warn);
+  background: linear-gradient(to right, #fefdf8 0%, var(--surface) 5%);
+}
+
+.professor-card__info {}
+
+.professor-card__name {
+  font-family: var(--font-head);
+  font-size: 1.125rem;
+  font-weight: 400;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.professor-card__meta {
+  font-size: .875rem;
+  color: var(--ink-2);
+  line-height: 1.7;
+}
+
+.professor-card__meta strong {
+  font-weight: 600;
+  color: var(--ink-3);
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-right: 4px;
+}
+
+.professor-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 110px;
+}
+
+/* ── Badge ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.badge--warn {
+  background: var(--warn-bg);
+  color: var(--warn);
+  border: 1px solid #e8d08a;
+}
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 20px;
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: .875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  text-decoration: none;
+  white-space: nowrap;
+  letter-spacing: .01em;
+}
+
+.btn:active { transform: scale(.97); }
+
+.btn--primary {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(200,64,26,.25);
+}
+.btn--primary:hover {
+  background: var(--accent-dark);
+  box-shadow: 0 4px 14px rgba(200,64,26,.35);
+}
+
+.btn--secondary {
+  background: transparent;
+  color: var(--ink-2);
+  border: 1px solid var(--border);
+}
+.btn--secondary:hover {
+  background: var(--bg);
+  border-color: var(--ink-3);
+}
+
+.btn--edit {
+  background: #EBF3FB;
+  color: #1A5A8C;
+  border: 1px solid #B8D4EE;
+}
+.btn--edit:hover {
+  background: #D4E9F7;
+}
+
+.btn--danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid #F0BEBE;
+}
+.btn--danger:hover {
+  background: #FBDDDD;
+}
+
+.btn--full { width: 100%; }
+
+.btn--lg {
+  padding: 12px 32px;
+  font-size: 1rem;
+}
+
+/* ── Form ── */
+.form-section {
+  margin-bottom: 22px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.form-label {
+  font-size: .875rem;
+  font-weight: 500;
+  color: var(--ink-2);
+  text-align: right;
+}
+
+.form-label--required::after {
+  content: ' *';
+  color: var(--accent);
+}
+
+.form-control {
+  width: 100%;
+  padding: 9px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: .9rem;
+  color: var(--ink);
+  background: var(--surface);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+}
+
+.form-control:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(200,64,26,.12);
+}
+
+.form-control:invalid:not(:placeholder-shown) {
+  border-color: var(--danger);
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 90px;
+}
+
+/* radio group */
+.radio-group {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  padding: 6px 0;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  font-size: .9rem;
+  color: var(--ink-2);
+}
+
+.radio-item input[type="radio"] {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* ── Alerts ── */
+.alert {
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  font-size: .875rem;
+  margin-bottom: 20px;
+  border-left: 3px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: fadeSlideIn .25s ease;
+}
+
+.alert--success {
+  background: var(--success-bg);
+  color: var(--success);
+  border-color: var(--success);
+}
+
+.alert--danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.alert--info {
+  background: #EAF2FB;
+  color: #1A5A8C;
+  border-color: #6BAED6;
+}
+
+.alert.d-none { display: none !important; }
+
+/* ── Divider ── */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border-soft);
+  margin: 24px 0;
+}
+
+/* ── Empty state ── */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--ink-3);
+}
+
+.empty-state__icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+  opacity: .5;
+}
+
+.empty-state__text {
+  font-size: 1rem;
+}
+
+/* ── Actions bar (bottom of list) ── */
+.actions-bar {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+
+/* ── Form actions ── */
+.form-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding-top: 8px;
+  flex-wrap: wrap;
+}
+
+/* ── Footer ── */
+.site-footer {
+  background: var(--ink);
+  color: rgba(255,255,255,.7);
+  text-align: center;
+  padding: 18px 24px;
+  font-size: .8rem;
+  line-height: 1.8;
+  margin-top: auto;
+}
+
+.site-footer strong {
+  color: #fff;
+}
+
+.site-footer .ia-declaration {
+  font-style: italic;
+  color: rgba(255,255,255,.5);
+  font-size: .75rem;
+  margin-top: 4px;
+}
+
+/* ── Confirmation modal ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26,23,20,.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn .18s ease;
+  backdrop-filter: blur(2px);
+}
+
+.modal-overlay.d-none { display: none !important; }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 32px 36px;
+  max-width: 400px;
+  width: 90%;
+  animation: scaleIn .2s cubic-bezier(.34,1.56,.64,1);
+}
+
+@keyframes scaleIn {
+  from { transform: scale(.88); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.modal__title {
+  font-family: var(--font-head);
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+  color: var(--ink);
+}
+
+.modal__body {
+  font-size: .9rem;
+  color: var(--ink-2);
+  margin-bottom: 24px;
+}
+
+.modal__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .page-wrapper { padding: 24px 16px 48px; }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .form-label { text-align: left; }
+
+  .professor-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .professor-card__actions {
+    flex-direction: row;
+    width: 100%;
+  }
+  .professor-card__actions .btn {
+    flex: 1;
+  }
+}

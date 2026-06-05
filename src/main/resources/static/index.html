@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerenciador de Professores</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Header -->
+<header class="site-header">
+  <span class="site-header__logo">Gerenciador de <span>Professores</span></span>
+</header>
+
+<!-- Main -->
+<main class="page-wrapper">
+
+  <h1 class="page-title">
+    <small>TADS · DSW3A · 2026</small>
+    Professores cadastrados
+  </h1>
+
+  <!-- Alert global -->
+  <div id="mensagem-alerta" class="alert d-none" role="alert"></div>
+
+  <!-- Lista -->
+  <div id="lista-professores"></div>
+
+  <!-- Ações -->
+  <div class="actions-bar">
+    <a href="formulario.html" class="btn btn--primary btn--lg">
+      + Incluir novo professor
+    </a>
+  </div>
+
+</main>
+
+<!-- Modal de confirmação de exclusão -->
+<div id="modal-excluir" class="modal-overlay d-none" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h2 class="modal__title">Excluir professor</h2>
+    <p class="modal__body" id="modal-mensagem">Deseja realmente excluir este professor? Esta ação não pode ser desfeita.</p>
+    <div class="modal__actions">
+      <button class="btn btn--secondary" id="modal-cancelar">Não, cancelar</button>
+      <button class="btn btn--danger" id="modal-confirmar">Sim, excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <strong>Gabriel Silva Gomes &amp; Gabriel Rodrigues Fausto</strong> · Turma 3A Noturno · 2026
+  <div class="ia-declaration">
+    Uso de IA: SIM — Claude (Anthropic) foi utilizado para aprimoramento visual das telas HTML/CSS
+    e auxílio na estruturação das camadas Spring Boot (correção de erros JPA e boas práticas REST).
+    Todo o código foi compreendido, revisado e adaptado pela dupla.
+  </div>
+</footer>
+
+<script>
+  const apiUrl = '/api/professores';
+  let professorIdParaExcluir = null;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    carregarProfessores();
+    verificarMensagemRedirecionamento();
+  });
+
+  function verificarMensagemRedirecionamento() {
+    const msg = sessionStorage.getItem('mensagem-sucesso');
+    if (msg) {
+      mostrarAlerta(msg, 'success');
+      sessionStorage.removeItem('mensagem-sucesso');
+    }
+  }
+
+  function carregarProfessores() {
+    fetch(apiUrl)
+      .then(res => res.json())
+      .then(professores => {
+        const container = document.getElementById('lista-professores');
+        container.innerHTML = '';
+
+        if (!professores.length) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state__icon">🎓</div>
+              <p class="empty-state__text">Nenhum professor cadastrado ainda.<br>Clique em <strong>Incluir novo professor</strong> para começar.</p>
+            </div>`;
+          return;
+        }
+
+        professores.forEach((prof, i) => {
+          const card = document.createElement('div');
+          card.className = 'professor-card' + (!prof.ativo ? ' professor-card--inactive' : '');
+          card.style.animationDelay = `${i * 60}ms`;
+          card.innerHTML = `
+            <div class="professor-card__info">
+              <div class="professor-card__name">
+                ${escHtml(prof.nome)}
+                ${!prof.ativo ? '<span class="badge badge--warn">Desativado</span>' : ''}
+              </div>
+              <div class="professor-card__meta">
+                <strong>Matrícula</strong>${escHtml(prof.matricula)}<br>
+                <strong>Disciplina</strong>${escHtml(prof.disciplina)}
+              </div>
+            </div>
+            <div class="professor-card__actions">
+              <a href="formulario.html?id=${prof.id}" class="btn btn--edit">✏ Alterar</a>
+              <button onclick="abrirModalExcluir(${prof.id}, '${escHtml(prof.nome).replace(/'/g,"\\'")}')
+" class="btn btn--danger">✕ Excluir</button>
+            </div>`;
+          container.appendChild(card);
+        });
+      })
+      .catch(() => mostrarAlerta('Erro ao carregar a lista de professores. Verifique se o servidor está rodando.', 'danger'));
+  }
+
+  function abrirModalExcluir(id, nome) {
+    professorIdParaExcluir = id;
+    document.getElementById('modal-mensagem').textContent =
+      `Deseja realmente excluir o professor "${nome}" (ID ${id})? Esta ação não pode ser desfeita.`;
+    document.getElementById('modal-excluir').classList.remove('d-none');
+  }
+
+  document.getElementById('modal-cancelar').addEventListener('click', () => {
+    document.getElementById('modal-excluir').classList.add('d-none');
+    professorIdParaExcluir = null;
+  });
+
+  document.getElementById('modal-confirmar').addEventListener('click', () => {
+    if (!professorIdParaExcluir) return;
+    fetch(`${apiUrl}/${professorIdParaExcluir}`, { method: 'DELETE' })
+      .then(res => {
+        document.getElementById('modal-excluir').classList.add('d-none');
+        if (res.ok) {
+          mostrarAlerta('Professor excluído com sucesso!', 'success');
+          carregarProfessores();
+        } else {
+          mostrarAlerta('Erro ao excluir o professor.', 'danger');
+        }
+        professorIdParaExcluir = null;
+      })
+      .catch(() => {
+        document.getElementById('modal-excluir').classList.add('d-none');
+        mostrarAlerta('Erro de conexão ao tentar excluir.', 'danger');
+        professorIdParaExcluir = null;
+      });
+  });
+
+  // Fechar modal ao clicar fora
+  document.getElementById('modal-excluir').addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.classList.add('d-none');
+      professorIdParaExcluir = null;
+    }
+  });
+
+  function mostrarAlerta(msg, tipo) {
+    const el = document.getElementById('mensagem-alerta');
+    const icone = tipo === 'success' ? '✓' : tipo === 'danger' ? '✕' : 'ℹ';
+    el.className = `alert alert--${tipo}`;
+    el.innerHTML = `<span>${icone}</span> ${msg}`;
+    el.classList.remove('d-none');
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (tipo === 'success') setTimeout(() => el.classList.add('d-none'), 5000);
+  }
+
+  function escHtml(str) {
+    return String(str ?? '')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>

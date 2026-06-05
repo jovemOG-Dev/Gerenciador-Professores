@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerenciador de Professores – Formulário</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Header -->
+<header class="site-header">
+  <span class="site-header__logo">Gerenciador de <span>Professores</span></span>
+</header>
+
+<!-- Main -->
+<main class="page-wrapper page-wrapper--narrow">
+
+  <h1 class="page-title" id="titulo-pagina">
+    <small>Formulário</small>
+    Incluir novo professor
+  </h1>
+
+  <!-- Alert -->
+  <div id="mensagem-alerta" class="alert d-none" role="alert"></div>
+
+  <!-- Card / Form -->
+  <div class="card">
+
+    <form id="form-professor" novalidate>
+      <input type="hidden" id="id">
+
+      <div class="form-row">
+        <label for="nome" class="form-label form-label--required">Nome</label>
+        <input
+          type="text"
+          class="form-control"
+          id="nome"
+          placeholder="Mín. 5 caracteres"
+          required
+          minlength="5"
+          maxlength="100"
+          autocomplete="off">
+      </div>
+
+      <div class="form-row">
+        <label for="matricula" class="form-label form-label--required">Matrícula</label>
+        <input
+          type="text"
+          class="form-control"
+          id="matricula"
+          placeholder="Ex: SNC-12345"
+          required
+          maxlength="20"
+          autocomplete="off">
+      </div>
+
+      <div class="form-row">
+        <label for="disciplina" class="form-label form-label--required">Disciplina</label>
+        <input
+          type="text"
+          class="form-control"
+          id="disciplina"
+          placeholder="Mín. 5 caracteres"
+          required
+          minlength="5"
+          maxlength="50"
+          autocomplete="off">
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Cadastro ativado</label>
+        <div class="radio-group">
+          <label class="radio-item">
+            <input type="radio" name="ativo" id="ativoSim" value="true" checked>
+            Sim
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="ativo" id="ativoNao" value="false">
+            Não
+          </label>
+        </div>
+      </div>
+
+      <div class="form-row" style="align-items: flex-start; padding-top: 4px;">
+        <label for="observacoes" class="form-label" style="padding-top: 8px;">Observações</label>
+        <textarea
+          class="form-control"
+          id="observacoes"
+          placeholder="Opcional — informações adicionais sobre o professor"
+          rows="3"></textarea>
+      </div>
+
+      <hr class="divider">
+
+      <div class="form-actions">
+        <a href="index.html" class="btn btn--secondary">← Cancelar</a>
+        <button type="submit" class="btn btn--primary btn--lg">Salvar professor</button>
+      </div>
+
+    </form>
+  </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <strong>Gabriel Silva Gomes &amp; Gabriel Rodrigues Fausto</strong> · Turma 3A Noturno · 2026
+  <div class="ia-declaration">
+    Uso de IA: SIM — Claude (Anthropic) foi utilizado para aprimoramento visual das telas HTML/CSS
+    e auxílio na estruturação das camadas Spring Boot (correção de erros JPA e boas práticas REST).
+    Todo o código foi compreendido, revisado e adaptado pela dupla.
+  </div>
+</footer>
+
+<script>
+  const apiUrl = '/api/professores';
+  const form   = document.getElementById('form-professor');
+  const alerta = document.getElementById('mensagem-alerta');
+  const tituloEl = document.getElementById('titulo-pagina');
+
+  const urlParams    = new URLSearchParams(window.location.search);
+  const idProfessor  = urlParams.get('id');
+
+  if (idProfessor) {
+    tituloEl.innerHTML = `<small>Formulário de alteração</small> Alterar professor <em style="color:var(--ink-3);font-size:.8em;">ID ${idProfessor}</em>`;
+    carregarDadosProfessor(idProfessor);
+  }
+
+  function carregarDadosProfessor(id) {
+    fetch(`${apiUrl}/${id}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Não encontrado');
+        return res.json();
+      })
+      .then(prof => {
+        document.getElementById('id').value          = prof.id;
+        document.getElementById('nome').value        = prof.nome;
+        document.getElementById('matricula').value   = prof.matricula;
+        document.getElementById('disciplina').value  = prof.disciplina;
+        document.getElementById('observacoes').value = prof.observacoes || '';
+        document.getElementById(prof.ativo ? 'ativoSim' : 'ativoNao').checked = true;
+      })
+      .catch(() => mostrarAlerta('Erro ao carregar os dados do professor.', 'danger'));
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    // Client-side validation feedback
+    if (!form.checkValidity()) {
+      form.querySelectorAll(':invalid').forEach(el => el.classList.add('input-error'));
+      mostrarAlerta('Preencha todos os campos obrigatórios corretamente antes de salvar.', 'danger');
+      return;
+    }
+
+    const id = document.getElementById('id').value;
+    const payload = {
+      nome:        document.getElementById('nome').value.trim(),
+      matricula:   document.getElementById('matricula').value.trim(),
+      disciplina:  document.getElementById('disciplina').value.trim(),
+      ativo:       document.getElementById('ativoSim').checked,
+      observacoes: document.getElementById('observacoes').value.trim()
+    };
+
+    const method = id ? 'PUT'  : 'POST';
+    const url    = id ? `${apiUrl}/${id}` : apiUrl;
+
+    // Disable button to prevent double-submit
+    const btnSalvar = form.querySelector('[type="submit"]');
+    btnSalvar.disabled = true;
+    btnSalvar.textContent = 'Salvando…';
+
+    fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(res => {
+      if (res.ok) {
+        sessionStorage.setItem('mensagem-sucesso',
+          id ? 'Professor alterado com sucesso!' : 'Professor cadastrado com sucesso!');
+        window.location.href = 'index.html';
+      } else {
+        return res.json().then(err => { throw err; });
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      const detalhe = err?.message || (Array.isArray(err) ? err.map(e => e.defaultMessage || e).join('; ') : '');
+      mostrarAlerta(
+        'Erro ao salvar o professor. ' + (detalhe ? detalhe : 'Verifique os dados e tente novamente.'),
+        'danger'
+      );
+      btnSalvar.disabled = false;
+      btnSalvar.textContent = 'Salvar professor';
+    });
+  });
+
+  // Remove error highlight on input
+  form.querySelectorAll('.form-control').forEach(el => {
+    el.addEventListener('input', () => el.classList.remove('input-error'));
+  });
+
+  function mostrarAlerta(msg, tipo) {
+    const icone = tipo === 'success' ? '✓' : tipo === 'danger' ? '✕' : 'ℹ';
+    alerta.className = `alert alert--${tipo}`;
+    alerta.innerHTML = `<span>${icone}</span> ${msg}`;
+    alerta.classList.remove('d-none');
+    alerta.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+</script>
+
+<style>
+  /* inline extra for invalid highlight */
+  .form-control.input-error {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px rgba(184,32,32,.1);
+  }
+</style>
+</body>
+</html>
