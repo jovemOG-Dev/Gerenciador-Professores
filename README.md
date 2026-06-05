@@ -1,4 +1,4 @@
-# Gerenciador de Professores - Projeto Integrador (SENAC-SP)
+# Gerenciador de Professores
 
 Repositório dedicado ao desenvolvimento da aplicação de gerenciamento de professores, parte do projeto final da disciplina de Desenvolvimento de Sistemas Web do curso TADS. O projeto utiliza uma arquitetura baseada em **Spring Boot (Webservice REST)** e **Banco de Dados H2**, com o frontend consumindo a API via **Fetch API**.
 
