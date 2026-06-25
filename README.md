@@ -26,5 +26,5 @@ Repositório dedicado ao desenvolvimento da aplicação de gerenciamento de prof
 - [Gabriel Silva Gomes](https://github.com/jovemOG-Dev) 
 - [Gabriel Rodrigues Fausto](https://github.com/gabriel-fausto)
 
----
-*Projeto desenvolvido para a disciplina de DSW - TADS 3A Noturno - SENAC-SP (2026).*
+#
+> Projeto desenvolvido para a disciplina de DSW - TADS 3A Noturno - SENAC-SP (2026).
